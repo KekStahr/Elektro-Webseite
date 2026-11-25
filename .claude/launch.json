@@ -1,0 +1,5 @@
+{ "version": "0.0.1", "configurations": [
+  { "name": "site", "runtimeExecutable": "python", "runtimeArgs": ["-m", "http.server", "8080"], "port": 8080 },
+  { "name": "site-php", "runtimeExecutable": "C:/Users/Clann/AppData/Local/Temp/claude/ed07b86681c95edd/1a0b270b-fd4e-4965-a345-b75ab9a56671/scratchpad/php/php.exe", "runtimeArgs": ["-c", "C:/Users/Clann/AppData/Local/Temp/claude/ed07b86681c95edd/1a0b270b-fd4e-4965-a345-b75ab9a56671/scratchpad/php/php.ini", "-S", "localhost:8081", "-t", "."], "port": 8081 },
+  { "name": "test-postfach", "runtimeExecutable": "python", "runtimeArgs": ["C:/Users/Clann/AppData/Local/Temp/claude/ed07b86681c95edd/1a0b270b-fd4e-4965-a345-b75ab9a56671/scratchpad/tools/mailviewer.py"], "port": 8025 }
+] }

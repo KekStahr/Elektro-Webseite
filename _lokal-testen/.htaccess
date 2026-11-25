@@ -1,0 +1,3 @@
+# Nur zum lokalen Testen. Diesen Ordner NICHT auf den Webserver hochladen.
+Require all denied
+Deny from all

@@ -1,0 +1,5 @@
+# Hochgeladene Bilder niemals als Script ausführen
+<FilesMatch "\.(php|phtml|phar|cgi|pl|py|sh)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes
