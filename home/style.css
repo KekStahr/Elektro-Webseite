@@ -18,18 +18,18 @@
 
 /* 4-Farben-Rad aus der Visitenkarte */
 .hero__visual { position: relative; aspect-ratio: 1; max-width: 540px; width: 100%; justify-self: center; }
-.wheel { position: absolute; inset: 2%; border-radius: 50%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; overflow: hidden; box-shadow: var(--shadow-lg); animation: wheel-in 1s cubic-bezier(.2, .8, .2, 1) both; }
+.wheel { position: absolute; inset: 2%; width: 96%; height: 96%; border-radius: 50%; overflow: visible; box-shadow: var(--shadow-lg); animation: wheel-in 1s cubic-bezier(.2, .8, .2, 1) both; }
 @keyframes wheel-in { from { transform: rotate(-90deg) scale(.6); opacity: 0; } }
-.wheel__q { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #fff; text-decoration: none; transition: filter .2s; }
-.wheel__q:hover { filter: brightness(1.1) saturate(1.1); }
-.wheel__q .ico { width: 62px; height: 62px; stroke-width: 1.5; transition: transform .25s; }
-.wheel__q:hover .ico { transform: scale(1.15); }
-.wheel__q em { font-style: normal; font-weight: 700; font-size: 1rem; letter-spacing: .04em; }
-.q-green { background: var(--green); padding: 8% 18% 18% 8%; } .q-yellow { background: var(--yellow); padding: 8% 8% 18% 18%; }
-.q-blue { background: var(--blue); padding: 18% 18% 8% 8%; } .q-red { background: var(--red); padding: 18% 8% 8% 18%; }
-.wheel__core { position: absolute; inset: 35%; border-radius: 50%; background: #fff; display: grid; place-content: center; text-align: center; box-shadow: 0 0 0 8px rgba(255, 255, 255, .35); pointer-events: none; }
-.wheel__core strong { font-size: clamp(1.8rem, 4vw, 2.6rem); color: var(--navy-900); line-height: 1; }
-.wheel__core span { font-size: .78rem; font-weight: 700; color: var(--muted); line-height: 1.2; }
+.wheel a { cursor: pointer; outline: none; }
+.wheel a path { transition: filter .2s; }
+.wheel a:hover path, .wheel a:focus-visible path { filter: brightness(1.08) saturate(1.1); }
+.wheel a:focus-visible path { stroke: #fff; stroke-width: 8; }
+.wheel__in { transition: transform .25s ease; transform-box: fill-box; transform-origin: center; }
+.wheel a:hover .wheel__in { transform: scale(1.1); }
+.wheel text { fill: #fff; font-family: var(--font); font-size: 27px; font-weight: 700; letter-spacing: .02em; text-anchor: middle; }
+.wheel__core { pointer-events: none; }
+.wheel .wheel__seit { fill: var(--muted); font-size: 17px; letter-spacing: .2em; }
+.wheel .wheel__year { fill: var(--navy-900); font-size: 52px; font-weight: 800; letter-spacing: -.02em; }
 .chip { position: absolute; display: flex; gap: 12px; align-items: center; background: #fff; border-radius: 16px; padding: 12px 16px; box-shadow: var(--shadow-lg); font-size: .82rem; color: var(--muted); max-width: 250px; animation: float 6s ease-in-out infinite; }
 .chip strong { display: block; color: var(--navy-900); font-size: .92rem; }
 .chip > span:first-child { color: var(--red); flex: none; }
@@ -140,11 +140,6 @@
 @media (max-width: 600px) {
   .hero__paths { grid-template-columns: 1fr; }
   .hero__visual { max-width: 290px; }
-  /* kleiner Kreis: Symbole zur Mitte hin, damit nichts am runden Rand abgeschnitten wird */
-  .wheel__q .ico { width: 38px; height: 38px; }
-  .wheel__q em { font-size: .78rem; }
-  .q-green { padding: 16% 0 0 16%; } .q-yellow { padding: 16% 16% 0 0; }
-  .q-blue { padding: 0 0 16% 16%; } .q-red { padding: 0 16% 16% 0; }
   .hero__accent { font-size: .58em; }
   .chip { font-size: .72rem; padding: 8px 10px; max-width: 190px; }
   .chip strong { font-size: .8rem; }
@@ -156,3 +151,8 @@
 }
 .marquee.is-paused .marquee__row { animation-play-state: paused; }
 .brand-pop.is-below::after { bottom: auto; top: -8px; }
+
+.check__plz { display: grid; gap: 6px; margin-bottom: 20px; }
+.check__plz input { font: inherit; font-size: 1.15rem; font-weight: 700; letter-spacing: .12em; width: 180px; padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 12px; color: var(--navy-900); }
+.check__plz input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy-50); }
+.check__plz small { color: var(--muted); font-size: .85rem; }

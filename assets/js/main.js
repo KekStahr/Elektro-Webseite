@@ -100,10 +100,8 @@ const ICONS = {
 const icon = (name, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
 
 // Logo: der 4-Farben-Kreis der Visitenkarte als Wiedererkennungs-Anker
-const LOGO_SVG = `<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#fff"/>
-<path d="M24 24V2A22 22 0 0 0 2 24z" fill="#3aa845"/><path d="M24 24V2a22 22 0 0 1 22 22z" fill="#f2bf1d"/>
-<path d="M24 24h22a22 22 0 0 1-22 22z" fill="#d7262e"/><path d="M24 24v22A22 22 0 0 1 2 24z" fill="#2459b8"/>
-<circle cx="24" cy="24" r="8.5" fill="#fff"/><path d="M20.5 24.2l2.4 2.4 4.6-5" fill="none" stroke="#262a7a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+// Logo der Visitenkarte: vier ungleiche Farbflächen, die sich an zwei versetzten Punkten treffen (nachgemessen)
+const LOGO_SVG = `<svg viewBox="0 0 600 600" aria-hidden="true"><path fill="#ffcc00" d="M230.6 8.1A300 300 0 0 1 507.3 83.1L360 325L241 340Z"/><path fill="#e3051c" d="M507.3 83.1A300 300 0 0 1 360 593.9L360 325Z"/><path fill="#0069b4" d="M360 593.9A300 300 0 0 1 7.4 366.1L241 340L360 325Z"/><path fill="#65b32e" d="M7.4 366.1A300 300 0 0 1 230.6 8.1L241 340Z"/></svg>`;
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -188,7 +186,7 @@ function renderFooter() {
     <div class="footer__grid">
       <div>
         <a class="logo" href="/home/">${LOGO_SVG}<span class="logo__text"><span class="logo__name">Scholz &amp; Partner</span><span class="logo__sub">Elektro-Hausgeräte-Service</span></span></a>
-        <p>Reparieren statt wegwerfen. Seit fast 30 Jahren Ihr Fachbetrieb für Hausgeräte in Köln-Porz.</p>
+        <p>Reparieren statt wegwerfen. Seit 1995 Ihr Fachbetrieb für Hausgeräte in Köln-Porz.</p>
         <div class="social"><a href="${SITE.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${icon('facebook')}</a><a href="${SITE.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${icon('instagram')}</a></div>
       </div>
       <div><h4>Service</h4><ul>

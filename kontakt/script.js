@@ -10,6 +10,7 @@ const device = P.get('produkt') || [P.get('marke'), P.get('geraet')].filter(Bool
 if (device) form.geraet.value = device;
 const lines = [];
 if (P.get('problem')) lines.push(`Problem: ${P.get('problem')}`);
+if (P.get('plz')) lines.push(`Postleitzahl: ${P.get('plz')}`);
 if (topic === 'reservierung') lines.push('Ich möchte dieses Gerät unverbindlich reservieren.');
 if (topic === 'preisanfrage' && device) lines.push(`Bitte nennen Sie mir Ihren Preis für: ${device}`);
 form.nachricht.value = lines.join('\n');
@@ -53,4 +54,17 @@ form.addEventListener('submit', async e => {
     msg.innerHTML = `<p class="alert alert--err">${esc(err.message || 'Senden fehlgeschlagen.')} Bitte rufen Sie uns an: <a href="${SITE.phoneHref}">${SITE.phone}</a></p>`;
     btn.disabled = false; btn.textContent = 'Anfrage senden';
   }
+});
+
+// Kontakt im Handy speichern (vCard): beim nächsten Defekt sind wir im Telefonbuch
+document.getElementById('vcard').addEventListener('click', () => {
+  const v = ['BEGIN:VCARD', 'VERSION:3.0', 'N:;Scholz & Partner Hausgeräte;;;', 'FN:Scholz & Partner Hausgeräte-Service',
+    'ORG:Scholz & Partner Elektro-Hausgeräte-Service', 'TEL;TYPE=WORK,VOICE:+49220354041', `EMAIL:${SITE.email}`,
+    'ADR;TYPE=WORK:;;Kaiserstraße 40;Köln;;51145;Deutschland', `URL:${location.origin}/home/`,
+    'NOTE:Reparatur, Verkauf, Lieferung & Anschluss von Hausgeräten. Mo bis Do 9 bis 18 Uhr, Fr 9 bis 17 Uhr.', 'END:VCARD'].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([v], { type: 'text/vcard' }));
+  a.download = 'Scholz-Partner-Hausgeraete.vcf';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });

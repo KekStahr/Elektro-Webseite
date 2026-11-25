@@ -62,41 +62,53 @@
 (() => {
   const BIG = 'Großgerät';
   const DEVICES = [
-    { id: 'Waschmaschine', icon: 'washer', kv: 35, type: BIG, problems: ['Pumpt nicht ab', 'Schleudert nicht', 'Verliert Wasser', 'Trommel dreht nicht', 'Startet nicht / Fehlercode', 'Laute Geräusche'] },
-    { id: 'Trockner', icon: 'dryer', kv: 35, type: BIG, problems: ['Wird nicht warm', 'Trommel dreht nicht', 'Startet nicht / Fehlercode', 'Laute Geräusche'] },
-    { id: 'Geschirrspüler', icon: 'dishwasher', kv: 35, type: BIG, problems: ['Pumpt nicht ab', 'Spült nicht sauber', 'Verliert Wasser', 'Wird nicht warm', 'Startet nicht / Fehlercode'] },
-    { id: 'Kühlschrank', icon: 'fridge', kv: 35, type: BIG, problems: ['Kühlt nicht mehr', 'Vereist stark', 'Wasser im Gerät', 'Laute Geräusche'] },
-    { id: 'Herd / Backofen', icon: 'oven', kv: 35, type: BIG, problems: ['Wird nicht heiß', 'Kochfeld ohne Funktion', 'Sicherung fliegt raus', 'Tür / Dichtung defekt'] },
+    { id: 'Waschmaschine', icon: 'washer', type: BIG, problems: ['Pumpt nicht ab', 'Schleudert nicht', 'Verliert Wasser', 'Trommel dreht nicht', 'Startet nicht / Fehlercode', 'Laute Geräusche'] },
+    { id: 'Trockner', icon: 'dryer', type: BIG, problems: ['Wird nicht warm', 'Trommel dreht nicht', 'Startet nicht / Fehlercode', 'Laute Geräusche'] },
+    { id: 'Geschirrspüler', icon: 'dishwasher', type: BIG, problems: ['Pumpt nicht ab', 'Spült nicht sauber', 'Verliert Wasser', 'Wird nicht warm', 'Startet nicht / Fehlercode'] },
+    { id: 'Kühlschrank', icon: 'fridge', type: BIG, problems: ['Kühlt nicht mehr', 'Vereist stark', 'Wasser im Gerät', 'Laute Geräusche'] },
+    { id: 'Herd / Backofen', icon: 'oven', type: BIG, problems: ['Wird nicht heiß', 'Kochfeld ohne Funktion', 'Sicherung fliegt raus', 'Tür / Dichtung defekt'] },
     { id: 'Kaffeevollautomat', icon: 'coffee', kv: 45, type: 'Kaffee', problems: ['Kein Kaffee / tröpfelt', 'Mahlwerk blockiert', 'Milchschaum geht nicht', 'Verliert Wasser', 'Fehlermeldung'] },
     { id: 'Kleingerät', icon: 'small', kv: 25, type: 'Klein', problems: ['Geht nicht mehr an', 'Riecht verbrannt', 'Mechanisch defekt', 'Sonstiges'] }
   ];
+  // Vor-Ort-Pauschale: Köln-Porz 79 €, alles andere 99 €
+  const PORZ_PLZ = ['51143', '51145', '51147', '51149'];
   const $dev = document.getElementById('check-devices'), $prob = document.getElementById('check-problems'), $res = document.getElementById('check-result');
-  const step2 = document.querySelector('[data-step="2"]');
-  let device;
+  const step2 = document.querySelector('[data-step="2"]'), step3 = document.querySelector('[data-step="3"]'), $plz = document.getElementById('check-plz');
+  let device, problem;
   $dev.innerHTML = DEVICES.map((d, i) => `<button class="opt" type="button" data-i="${i}">${icon(d.icon)}${d.id}</button>`).join('');
-  $dev.addEventListener('click', e => {
-    const b = e.target.closest('.opt'); if (!b) return;
-    device = DEVICES[b.dataset.i];
-    $dev.querySelectorAll('.opt').forEach(o => o.classList.toggle('is-active', o === b));
-    $prob.innerHTML = device.problems.map(p => `<button class="opt" type="button">${p}</button>`).join('');
-    step2.hidden = false; $res.hidden = true;
-  });
-  $prob.addEventListener('click', e => {
-    const b = e.target.closest('.opt'); if (!b) return;
-    $prob.querySelectorAll('.opt').forEach(o => o.classList.toggle('is-active', o === b));
-    const problem = b.textContent;
-    const q = new URLSearchParams({ anliegen: 'reparatur', geraet: device.id, problem, ort: device.type === BIG ? 'vor-ort' : 'geschaeft' });
-    const big = device.type === BIG;
-    $res.innerHTML = `<h3>${device.id}: „${problem}“, das bekommen wir hin.</h3>
+
+  const render = () => {
+    const big = device.type === BIG, plz = $plz.value;
+    if (big && plz.length !== 5) { $res.hidden = true; return; }
+    const inPorz = PORZ_PLZ.includes(plz);
+    const q = new URLSearchParams({ anliegen: 'reparatur', geraet: device.id, problem, ort: big ? 'vor-ort' : 'geschaeft', ...(big && { plz }) });
+    $res.innerHTML = `<h3>${device.id}: „${esc(problem)}“, das bekommen wir hin.</h3>
       <p>${big
         ? 'Großgeräte reparieren wir meist direkt bei Ihnen zu Hause. Kleinere Arbeiten erledigt der Techniker oft gleich beim ersten Besuch.'
         : 'Bringen Sie das Gerät einfach zu uns in die Kaiserstraße. Wir prüfen es in unserer Werkstatt und melden uns mit dem Kostenvoranschlag.'}</p>
       <div class="check__price">${big
-        ? `<strong>ab 79 €</strong><span>Vor-Ort-Pauschale in Porz, inkl. Anfahrt, Prüfung und kleiner Reparaturen. Wird bei Auftrag angerechnet.</span>`
+        ? `<strong>${inPorz ? 79 : 99} €</strong><span>Vor-Ort-Pauschale ${inPorz ? 'innerhalb' : 'außerhalb'} von Köln-Porz (PLZ ${plz}), inkl. Anfahrt, Techniker, Prüfung und kleiner Reparaturen. Wird bei Auftrag angerechnet.</span>`
         : `<strong>${device.kv} €</strong><span>Kostenvoranschlag im Geschäft, wird bei Reparatur vollständig angerechnet.</span>`}</div>
       <div class="check__actions"><a class="btn btn--red" href="/kontakt/?${q}">Jetzt Reparatur anfragen</a><a class="btn btn--ghost" href="${SITE.phoneHref}">${icon('phone')} Anrufen</a></div>`;
     $res.hidden = false;
+  };
+
+  $dev.addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if (!b) return;
+    device = DEVICES[b.dataset.i]; problem = null;
+    $dev.querySelectorAll('.opt').forEach(o => o.classList.toggle('is-active', o === b));
+    $prob.innerHTML = device.problems.map(p => `<button class="opt" type="button">${p}</button>`).join('');
+    step2.hidden = false; step3.hidden = true; $res.hidden = true;
   });
+  $prob.addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if (!b) return;
+    $prob.querySelectorAll('.opt').forEach(o => o.classList.toggle('is-active', o === b));
+    problem = b.textContent;
+    step3.hidden = device.type !== BIG; // Postleitzahl nur bei Großgeräten (Techniker kommt nach Hause)
+    if (!step3.hidden && $plz.value.length !== 5) $plz.focus();
+    render();
+  });
+  $plz.addEventListener('input', () => { $plz.value = $plz.value.replace(/\D/g, '').slice(0, 5); if (problem) render(); });
 })();
 
 /* --- Angebote aus dem Admin-Bereich: höchste Ersparnis zuerst --- */
