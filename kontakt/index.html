@@ -41,7 +41,7 @@
           <div class="field"><label for="tel">Telefon *</label><input id="tel" name="tel" type="tel" required autocomplete="tel" maxlength="40"></div>
         </div>
         <div class="row2">
-          <div class="field"><label for="email">E-Mail</label><input id="email" name="email" type="email" autocomplete="email" maxlength="150"></div>
+          <div class="field"><label for="email">E-Mail *</label><input id="email" name="email" type="email" required autocomplete="email" maxlength="150"></div>
           <div class="field"><label for="geraet">Gerät / Produkt</label><input id="geraet" name="geraet" maxlength="200" placeholder="z. B. Waschmaschine Miele"></div>
         </div>
         <!-- Nur bei "Reparatur" sichtbar -->
@@ -55,9 +55,18 @@
             <label class="place__opt"><input type="radio" name="ort" value="vor-ort">
               <span class="place__card"><span class="place__ico" data-icon="home"></span>
                 <span class="place__txt"><strong>Techniker kommt zu mir</strong><small>Ideal für Großgeräte</small></span>
-                <span class="place__price"><small>Vor-Ort-Pauschale</small><b>ab 79 €</b></span></span></label>
+                <span class="place__price"><small id="vorort-label">Vor-Ort-Pauschale</small><b id="vorort-preis">ab 79 €</b></span></span></label>
           </div>
           <p class="place__note" data-icon="check">Der Betrag wird bei einer Reparatur durch uns vollständig angerechnet.</p>
+        </fieldset>
+        <!-- Nur bei "Reparatur" + "Techniker kommt zu mir": Adresse ist dann Pflicht -->
+        <fieldset class="addr" id="addr" hidden>
+          <legend class="sr-only">Adresse für den Techniker-Termin</legend>
+          <div class="field"><label for="strasse">Straße und Hausnummer *</label><input id="strasse" name="strasse" autocomplete="street-address" maxlength="120" placeholder="z. B. Hauptstraße 12"></div>
+          <div class="addr__row">
+            <div class="field"><label for="plz">PLZ *</label><input id="plz" name="plz" inputmode="numeric" maxlength="5" autocomplete="postal-code" placeholder="51145"></div>
+            <div class="field"><label for="stadt">Ort *</label><input id="stadt" name="stadt" autocomplete="address-level2" maxlength="80" placeholder="Köln"></div>
+          </div>
         </fieldset>
         <div class="field"><label for="nachricht">Ihre Nachricht *</label><textarea id="nachricht" name="nachricht" required maxlength="4000" placeholder="Was ist passiert? Wann passt es Ihnen?"></textarea></div>
         <div class="field"><label for="rueckruf">Wann dürfen wir Sie zurückrufen?</label>

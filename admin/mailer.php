@@ -11,7 +11,7 @@ function send_mail(string $to, string $subject, string $text, string $replyTo = 
   $subj = '=?UTF-8?B?' . base64_encode($subject) . '?=';
   $from = 'From: =?UTF-8?B?' . base64_encode(MAIL_FROM_NAME) . '?= <' . (smtp_on() ? SMTP_USER : MAIL_FROM) . ">\r\n";
   $headers = $from . ($replyTo ? "Reply-To: $replyTo\r\n" : '') . "MIME-Version: 1.0\r\n" . $headers;
-  if (!smtp_on()) return mail($to, $subj, $body, rtrim($headers));
+  if (!smtp_on()) return mail($to, $subj, $body, rtrim($headers), '-f' . MAIL_FROM); // -f: Rücklauf-Adresse info@, bessere Zustellung
   return smtp_send($to, "To: <$to>\r\nSubject: $subj\r\nDate: " . date('r') . "\r\n"
     . 'Message-ID: <' . bin2hex(random_bytes(12)) . '@' . (substr(strrchr(SMTP_USER, '@'), 1) ?: 'localhost') . ">\r\n"
     . $headers . "\r\n" . $body);

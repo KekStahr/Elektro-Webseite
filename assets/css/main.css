@@ -103,7 +103,7 @@ p { margin: 0 0 1em; }
 .nav__menu a:hover { background: var(--navy-50); color: var(--navy); }
 .nav__menu .ico { width: 20px; height: 20px; color: var(--red); }
 .nav__drop:hover .nav__menu, .nav__drop:focus-within .nav__menu { opacity: 1; visibility: visible; transform: none; }
-.nav__drop:hover > button svg { transform: rotate(180deg); }
+@media (hover: hover) and (min-width: 901px) { .nav__drop:hover > button > .ico { transform: rotate(180deg); } }
 .header__cta { display: flex; align-items: center; gap: 12px; }
 .header__phone { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--navy-900); text-decoration: none; white-space: nowrap; }
 .header__phone .ico { color: var(--red); }

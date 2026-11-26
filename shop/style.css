@@ -63,8 +63,8 @@
 @media (max-width: 900px) {
   .shop { grid-template-columns: 1fr; }
   .filters-open { display: inline-flex !important; }
-  .filters { position: fixed; z-index: 70; top: 0; bottom: 0; left: 0; width: min(88vw, 360px); max-height: none; background: #fff; padding: 20px; transform: translateX(-105%); transition: transform .25s; box-shadow: var(--shadow-lg); }
-  .filters.is-open { transform: none; }
+  .filters { position: fixed; z-index: 70; top: 0; bottom: 0; left: 0; width: min(88vw, 360px); max-height: none; background: #fff; padding: 20px; transform: translateX(-105%); visibility: hidden; transition: transform .25s, visibility .25s; box-shadow: var(--shadow-lg); }
+  .filters.is-open { transform: none; visibility: visible; }
   .filters__close { display: grid !important; place-items: center; background: none; border: 0; cursor: pointer; padding: 6px; }
   .filters__apply { display: flex !important; position: sticky; bottom: 0; margin-top: 12px; }
   .filters__head { gap: 8px; }

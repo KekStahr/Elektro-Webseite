@@ -1,0 +1,6 @@
+# Geheimnisse und Laufzeitdaten nie ins Repository
+admin/config.php
+admin/storage/*.php
+!admin/storage/index.php
+admin/storage/*.lock
+uploads/products/*

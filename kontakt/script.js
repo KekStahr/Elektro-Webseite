@@ -10,7 +10,6 @@ const device = P.get('produkt') || [P.get('marke'), P.get('geraet')].filter(Bool
 if (device) form.geraet.value = device;
 const lines = [];
 if (P.get('problem')) lines.push(`Problem: ${P.get('problem')}`);
-if (P.get('plz')) lines.push(`Postleitzahl: ${P.get('plz')}`);
 if (topic === 'reservierung') lines.push('Ich möchte dieses Gerät unverbindlich reservieren.');
 if (topic === 'preisanfrage' && device) lines.push(`Bitte nennen Sie mir Ihren Preis für: ${device}`);
 form.nachricht.value = lines.join('\n');
@@ -19,8 +18,23 @@ form.nachricht.value = lines.join('\n');
 const place = document.getElementById('place');
 const ortParam = P.get('ort');
 if (ortParam && [...form.ort].some(r => r.value === ortParam)) form.ort.value = ortParam;
-const syncPlace = () => { place.hidden = form.anliegen.value !== 'reparatur'; };
-form.addEventListener('change', e => { if (e.target.name === 'anliegen') syncPlace(); if (e.target.name === 'ort') place.classList.remove('has-error'); });
+const addr = document.getElementById('addr'), addrFields = [form.strasse, form.plz, form.stadt];
+const preis = document.getElementById('vorort-preis'), preisLabel = document.getElementById('vorort-label');
+if (/^\d{5}$/.test(P.get('plz') || '')) form.plz.value = P.get('plz'); // aus dem Reparatur-Check
+// Preis in der Karte "Techniker kommt zu mir" folgt der Postleitzahl
+const syncPrice = () => {
+  const plz = form.plz.value;
+  preis.textContent = plz.length === 5 ? `${vorOrtPreis(plz)} €` : 'ab 79 €';
+  preisLabel.textContent = plz.length === 5 ? (vorOrtPreis(plz) === 79 ? 'Pauschale in Köln-Porz' : 'Pauschale außerhalb Porz') : 'Vor-Ort-Pauschale';
+};
+const syncPlace = () => {
+  place.hidden = form.anliegen.value !== 'reparatur';
+  addr.hidden = place.hidden || form.ort.value !== 'vor-ort';
+  addrFields.forEach(f => f.required = !addr.hidden); // Pflichtfelder nur, wenn sichtbar
+};
+form.plz.addEventListener('input', () => { form.plz.value = form.plz.value.replace(/\D/g, '').slice(0, 5); syncPrice(); });
+syncPrice();
+form.addEventListener('change', e => { if (e.target.name === 'anliegen') { syncPlace(); document.getElementById('k-title').textContent = TITLES[e.target.value] || 'Wie können wir helfen?'; } if (e.target.name === 'ort') { place.classList.remove('has-error'); syncPlace(); if (!addr.hidden) form.strasse.focus(); } });
 syncPlace();
 
 document.getElementById('k-open').textContent = openStatus().text;
@@ -32,6 +46,7 @@ form.addEventListener('submit', async e => {
   form.querySelectorAll('.has-error').forEach(f => f.classList.remove('has-error'));
   const bad = [...form.querySelectorAll('[required]')].filter(el => el.type === 'checkbox' ? !el.checked : !el.value.trim());
   if (form.email.value && !form.email.checkValidity()) bad.push(form.email);
+  if (!addr.hidden && form.plz.value && form.plz.value.length !== 5) bad.push(form.plz);
   const needPlace = !place.hidden && !form.ort.value;
   if (bad.length || needPlace) {
     bad.forEach(el => el.closest('.field')?.classList.add('has-error'));
@@ -43,6 +58,7 @@ form.addEventListener('submit', async e => {
   const btn = document.getElementById('submit');
   const data = new FormData(form);
   if (place.hidden) data.delete('ort');
+  if (addr.hidden) ['strasse', 'plz', 'stadt'].forEach(k => data.delete(k));
   btn.disabled = true; btn.textContent = 'Wird gesendet …';
   try {
     const res = await fetch('/kontakt/send.php', { method: 'POST', body: data });
@@ -61,7 +77,7 @@ document.getElementById('vcard').addEventListener('click', () => {
   const v = ['BEGIN:VCARD', 'VERSION:3.0', 'N:;Scholz & Partner Hausgeräte;;;', 'FN:Scholz & Partner Hausgeräte-Service',
     'ORG:Scholz & Partner Elektro-Hausgeräte-Service', 'TEL;TYPE=WORK,VOICE:+49220354041', `EMAIL:${SITE.email}`,
     'ADR;TYPE=WORK:;;Kaiserstraße 40;Köln;;51145;Deutschland', `URL:${location.origin}/home/`,
-    'NOTE:Reparatur, Verkauf, Lieferung & Anschluss von Hausgeräten. Mo bis Do 9 bis 18 Uhr, Fr 9 bis 17 Uhr.', 'END:VCARD'].join('\r\n');
+    'NOTE:Reparatur, Verkauf, Lieferung & Anschluss von Hausgeräten. Mo bis Do 9 bis 13 und 14 bis 18 Uhr, Fr 9 bis 13 und 14 bis 17 Uhr.', 'END:VCARD'].join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([v], { type: 'text/vcard' }));
   a.download = 'Scholz-Partner-Hausgeraete.vcf';

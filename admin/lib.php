@@ -1,4 +1,5 @@
 <?php
+ini_set('display_errors', '0'); // Fehler nur ins Server-Log, nie an Besucher
 require __DIR__ . '/config.php';
 require __DIR__ . '/mailer.php';
 
@@ -28,7 +29,12 @@ function attempts_save(array $a): void {
   $a = array_filter($a, fn($e) => $now - $e['t'] < LOCK_SECONDS);
   file_put_contents(ATTEMPTS_FILE, '<?php exit; ?>' . json_encode($a), LOCK_EX);
 }
-function ip_key(): string { return hash('sha256', $_SERVER['REMOTE_ADDR'] ?? ''); }
+// IPv6: ganzes /64-Netz zählt als eine Adresse, sonst könnte ein Angreifer endlos Adressen wechseln
+function ip_key(): string {
+  $ip = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+  if (strpos($ip, ':') !== false && ($bin = @inet_pton($ip)) !== false) $ip = bin2hex(substr($bin, 0, 8));
+  return hash('sha256', $ip);
+}
 function is_locked(): bool {
   $e = attempts_load()[ip_key()] ?? null;
   return $e && $e['n'] >= MAX_FAILS && time() - $e['t'] < LOCK_SECONDS;
@@ -55,7 +61,8 @@ function products_read(): array {
   return is_file(PRODUCTS_FILE) ? (json_decode((string)file_get_contents(PRODUCTS_FILE), true) ?: []) : [];
 }
 function products_write(array $list): void {
-  $tmp = PRODUCTS_FILE . '.tmp';
-  file_put_contents($tmp, json_encode(array_values($list), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
-  rename($tmp, PRODUCTS_FILE);
+  // Wirft bei Fehlern statt eine leere Datei zu schreiben; eindeutiger Temp-Name gegen gleichzeitiges Speichern
+  $json = json_encode(array_values($list), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR);
+  $tmp = PRODUCTS_FILE . '.' . bin2hex(random_bytes(4)) . '.tmp';
+  if (file_put_contents($tmp, $json, LOCK_EX) === false || !rename($tmp, PRODUCTS_FILE)) { @unlink($tmp); throw new RuntimeException('Produkte konnten nicht gespeichert werden.'); }
 }

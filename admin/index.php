@@ -9,7 +9,10 @@ $error = ''; $info = '';
 $step = is_admin() ? 'dash' : (!empty($_SESSION['2fa']) ? 'code' : 'login');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !is_admin()) {
-  if (!hash_equals($_SESSION['csrf'], $_POST['csrf'] ?? '')) {
+  // Anmeldungen nacheinander abarbeiten: parallele Anfragen können die Fehlversuch-Sperre so nicht überlisten
+  $loginLock = fopen(__DIR__ . '/storage/login.lock', 'c');
+  if ($loginLock) flock($loginLock, LOCK_EX);
+  if (!hash_equals($_SESSION['csrf'], (is_string($_POST['csrf'] ?? null) ? $_POST['csrf'] : ''))) {
     $error = 'Sitzung abgelaufen. Bitte erneut versuchen.';
   } elseif (is_locked()) {
     $error = 'Zu viele Fehlversuche. Bitte in 15 Minuten erneut versuchen.';
@@ -57,7 +60,7 @@ $csrf = h($_SESSION['csrf']);
   <link rel="stylesheet" href="<?= $v('/assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= $v('/admin/style.css') ?>">
 </head>
-<body class="admin">
+<body class="admin" data-csrf="<?= $csrf ?>">
 
 <?php if ($step !== 'dash'): ?>
 <main class="login">
@@ -146,7 +149,6 @@ $csrf = h($_SESSION['csrf']);
 </div>
 <div class="toast" id="toast" hidden></div>
 
-<script>window.CSRF = '<?= $csrf ?>'; window.ROLE = '<?= is_super() ? 'super' : 'admin' ?>';</script>
 <script src="<?= $v('/assets/js/main.js') ?>"></script>
 <script src="<?= $v('/admin/script.js') ?>"></script>
 <?php endif ?>

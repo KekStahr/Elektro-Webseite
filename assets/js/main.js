@@ -15,6 +15,7 @@ const SITE = {
   owner: 'Joachim Scholz',
   mapsUrl: 'https://www.google.com/maps/dir/?api=1&destination=Kaiserstra%C3%9Fe+40%2C+51145+K%C3%B6ln',
   reviewsUrl: 'https://www.google.com/maps/search/?api=1&query=Scholz+%26+Partner+Kaiserstra%C3%9Fe+40+K%C3%B6ln',
+  porzPlz: ['51143', '51145', '51147', '51149'], // Vor-Ort-Pauschale: Köln-Porz 79 €, sonst 99 € (auch in kontakt/send.php pflegen)
   facebook: 'https://www.facebook.com/scholzshop/',
   instagram: 'https://www.instagram.com/scholz.shop/',
   // [Wochentag 0=So..6=Sa] -> Zeitfenster in Minuten
@@ -103,6 +104,7 @@ const icon = (name, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" ar
 // Logo der Visitenkarte: vier ungleiche Farbflächen, die sich an zwei versetzten Punkten treffen (nachgemessen)
 const LOGO_SVG = `<svg viewBox="0 0 600 600" aria-hidden="true"><path fill="#ffcc00" d="M230.6 8.1A300 300 0 0 1 507.3 83.1L360 325L241 340Z"/><path fill="#e3051c" d="M507.3 83.1A300 300 0 0 1 360 593.9L360 325Z"/><path fill="#0069b4" d="M360 593.9A300 300 0 0 1 7.4 366.1L241 340L360 325Z"/><path fill="#65b32e" d="M7.4 366.1A300 300 0 0 1 230.6 8.1L241 340Z"/></svg>`;
 
+const vorOrtPreis = plz => SITE.porzPlz.includes(plz) ? 79 : 99;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 /* ---------- Öffnungsstatus (Berliner Zeit) ---------- */
@@ -216,7 +218,7 @@ async function loadProducts() {
   if (!res.ok) throw new Error('Produkte konnten nicht geladen werden');
   return (await res.json()).filter(p => p.active !== false);
 }
-const category = id => CATEGORIES.find(c => c.id === id) || { name: id, icon: 'small', color: 'navy' };
+const category = id => CATEGORIES.find(c => c.id === id) || { id, name: id, icon: 'small', color: 'navy' };
 const euro = n => Number(n).toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: Number(n) % 1 ? 2 : 0 });
 const savePct = p => p.price && p.oldPrice > p.price ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
 

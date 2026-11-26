@@ -40,18 +40,18 @@ def parse(raw):
             images[part['Content-ID'].strip('<>')] = f"data:{ct};base64," + base64.b64encode(part.get_payload(decode=True)).decode()
     if html_part:
         for cid, uri in images.items(): html_part = html_part.replace(f'cid:{cid}', uri)
-    return str(m['To'] or ''), str(m['Subject'] or ''), text or '', html_part
+    return str(m['To'] or ''), str(m['Subject'] or ''), text or '', html_part, str(m['From'] or '')
 
 class Page(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def do_GET(self):
         cards = []
         for raw in MAILS[:20]:
-            to, subj, text, html_body = parse(raw)
+            to, subj, text, html_body, frm = parse(raw)
             code = re.search(r'^\s{4}(\d{6})$', text, re.M)
             view = (f'<iframe srcdoc="{html.escape(html_body)}" style="width:100%;height:760px;border:1px solid #e3e5ee;border-radius:10px;background:#fff"></iframe>'
                     if html_body else f'<pre>{html.escape(text)}</pre>')
-            cards.append(f'''<article><div class="meta">An: <b>{html.escape(to)}</b>{' · <span class="tag">HTML-Mail</span>' if html_body else ''}</div>
+            cards.append(f'''<article><div class="meta">Von: <b>{html.escape(frm)}</b> · An: <b>{html.escape(to)}</b>{' · <span class="tag">HTML-Mail</span>' if html_body else ''}</div>
               <h2>{html.escape(subj)}</h2>{f'<div class="code">{code.group(1)}</div>' if code else ''}{view}</article>''')
         page = f'''<!doctype html><meta charset="utf-8"><title>Test-Postfach</title>
         <style>body{{font-family:Segoe UI,sans-serif;background:#f6f7fb;margin:0;padding:32px;color:#1b1d2e;max-width:900px;margin:auto}}

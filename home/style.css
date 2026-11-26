@@ -156,3 +156,10 @@
 .check__plz input { font: inherit; font-size: 1.15rem; font-weight: 700; letter-spacing: .12em; width: 180px; padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 12px; color: var(--navy-900); }
 .check__plz input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy-50); }
 .check__plz small { color: var(--muted); font-size: .85rem; }
+
+/* Reparatur-Check: Text im weißen Kasten dunkel (der blaue Abschnitt färbt Überschriften sonst weiß) */
+.check__box h3 { color: var(--navy-900); }
+.check__price { display: grid; gap: 2px; }
+.check__price .check__label { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+/* Am PC wandert der linke Text beim Scrollen mit, wie das Inhaber-Foto bei "Über uns" */
+@media (min-width: 901px) { .check__intro { position: sticky; top: calc(var(--header-h) + 24px); } }

@@ -76,6 +76,7 @@ switch ($action) {
     if (!is_dir(UPLOAD_DIR)) mkdir(UPLOAD_DIR, 0755, true);
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     foreach ((array)($_POST['order'] ?? []) as $o) {
+      if (!is_string($o)) continue;
       if (count($images) >= MAX_IMAGES) break;
       if (strpos($o, 'old:') === 0) {
         $url = substr($o, 4);

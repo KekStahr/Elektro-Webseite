@@ -1,5 +1,11 @@
-# Hochgeladene Bilder niemals als Script ausführen
-<FilesMatch "\.(php|phtml|phar|cgi|pl|py|sh)$">
-  Require all denied
+# Hochgeladene Bilder niemals als Skript ausführen
+<FilesMatch "\.(php\d?|phtml|phar|pht|cgi|pl|py|sh|html?|svg|js)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
 </FilesMatch>
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Content-Security-Policy "default-src 'none'; img-src 'self'"
+</IfModule>
 Options -Indexes

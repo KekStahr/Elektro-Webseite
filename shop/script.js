@@ -43,8 +43,8 @@ function renderOptions(id, key, field, labelFn) {
 function renderCats() {
   const counts = {}; ALL.filter(p => match(p, 'cat')).forEach(p => counts[p.category] = (counts[p.category] || 0) + 1);
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
-  $('cats').innerHTML = `<button class="cat ${!S.cat ? 'is-active' : ''}" data-cat="" role="tab">${icon('store')}<span>Alle Geräte</span><em>${total}</em></button>` +
-    CATEGORIES.map(c => `<button class="cat c-${c.color} ${S.cat === c.id ? 'is-active' : ''}" data-cat="${c.id}" role="tab">${icon(c.icon)}<span>${c.name}</span><em>${counts[c.id] || 0}</em></button>`).join('');
+  $('cats').innerHTML = `<button class="cat ${!S.cat ? 'is-active' : ''}" data-cat="" aria-pressed="${!S.cat}">${icon('store')}<span>Alle Geräte</span><em>${total}</em></button>` +
+    CATEGORIES.map(c => `<button class="cat c-${c.color} ${S.cat === c.id ? 'is-active' : ''}" data-cat="${c.id}" aria-pressed="${S.cat === c.id}">${icon(c.icon)}<span>${c.name}</span><em>${counts[c.id] || 0}</em></button>`).join('');
 }
 
 function renderChips() {
@@ -54,23 +54,26 @@ function renderChips() {
   S.cond.forEach(v => chips.push(['cond', v, CONDITIONS[v]]));
   S.brand.forEach(v => chips.push(['brand', v, v]));
   S.color.forEach(v => chips.push(['color', v, v]));
-  if (S.pmin !== '' || S.pmax !== '') chips.push(['price', '', `${S.pmin || 0}, ${S.pmax || '∞'} €`]);
+  if (S.pmin !== '' || S.pmax !== '') chips.push(['price', '', `${S.pmin || 0}–${S.pmax || '∞'} €`]);
   if (S.hmax !== '') chips.push(['hmax', '', `Höhe ≤ ${S.hmax} cm`]);
   if (S.wmax !== '') chips.push(['wmax', '', `Breite ≤ ${S.wmax} cm`]);
   $('chips').innerHTML = chips.map(([k, v, l]) => `<button class="chip-x" data-k="${k}" data-v="${esc(v)}">${esc(l)} ${icon('x')}</button>`).join('');
 }
 
 function render() {
+  const a = document.activeElement;
+  const refocus = a && (a.dataset.cat !== undefined ? `.cat[data-cat="${a.dataset.cat}"]` : a.dataset.key ? `input[data-key="${a.dataset.key}"][value="${CSS.escape(a.value)}"]` : null);
   const list = ALL.filter(p => match(p)).sort(sorters[S.sort]);
   $('grid').innerHTML = list.map(productCard).join('');
   $('empty').hidden = list.length > 0;
   $('count').innerHTML = `<strong>${list.length}</strong> ${list.length === 1 ? 'Gerät' : 'Geräte'}`;
-  $('filters-apply').textContent = `${list.length} Ergebnisse anzeigen`;
+  $('filters-apply').textContent = `${list.length} ${list.length === 1 ? 'Ergebnis' : 'Ergebnisse'} anzeigen`;
   renderCats(); renderChips();
   renderOptions('f-condition', 'cond', 'condition', v => CONDITIONS[v] || v);
   renderOptions('f-brand', 'brand', 'brand');
   renderOptions('f-color', 'color', 'color', v => v[0].toUpperCase() + v.slice(1));
   initReveal($('grid'));
+  if (refocus) document.querySelector(refocus)?.focus();
   // URL aktuell halten -> teilbare Links ("Schau mal, Lackschaden-Waschmaschinen")
   const u = new URLSearchParams();
   if (S.cat) u.set('kategorie', S.cat); if (S.q) u.set('q', S.q);

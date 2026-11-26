@@ -37,6 +37,8 @@
   wrap.addEventListener('mouseout', e => { if (e.target.closest('.brand') && !touch) hide(); });
   wrap.addEventListener('focusin', e => { const el = e.target.closest('.brand'); if (el) show(el); });
   wrap.addEventListener('focusout', hide);
+  pop.addEventListener('focusin', () => clearTimeout(hideT));
+  pop.addEventListener('focusout', hide);
   pop.addEventListener('mouseenter', () => clearTimeout(hideT));
   pop.addEventListener('mouseleave', hide);
   // Touch: erster Tipp öffnet das Fenster (dort gibt's den Hersteller-Link)
@@ -70,8 +72,6 @@
     { id: 'Kaffeevollautomat', icon: 'coffee', kv: 45, type: 'Kaffee', problems: ['Kein Kaffee / tröpfelt', 'Mahlwerk blockiert', 'Milchschaum geht nicht', 'Verliert Wasser', 'Fehlermeldung'] },
     { id: 'Kleingerät', icon: 'small', kv: 25, type: 'Klein', problems: ['Geht nicht mehr an', 'Riecht verbrannt', 'Mechanisch defekt', 'Sonstiges'] }
   ];
-  // Vor-Ort-Pauschale: Köln-Porz 79 €, alles andere 99 €
-  const PORZ_PLZ = ['51143', '51145', '51147', '51149'];
   const $dev = document.getElementById('check-devices'), $prob = document.getElementById('check-problems'), $res = document.getElementById('check-result');
   const step2 = document.querySelector('[data-step="2"]'), step3 = document.querySelector('[data-step="3"]'), $plz = document.getElementById('check-plz');
   let device, problem;
@@ -80,15 +80,17 @@
   const render = () => {
     const big = device.type === BIG, plz = $plz.value;
     if (big && plz.length !== 5) { $res.hidden = true; return; }
-    const inPorz = PORZ_PLZ.includes(plz);
+    const inPorz = vorOrtPreis(plz) === 79;
     const q = new URLSearchParams({ anliegen: 'reparatur', geraet: device.id, problem, ort: big ? 'vor-ort' : 'geschaeft', ...(big && { plz }) });
-    $res.innerHTML = `<h3>${device.id}: „${esc(problem)}“, das bekommen wir hin.</h3>
+    $res.innerHTML = `<h3>Das bekommen wir hin.</h3>
       <p>${big
-        ? 'Großgeräte reparieren wir meist direkt bei Ihnen zu Hause. Kleinere Arbeiten erledigt der Techniker oft gleich beim ersten Besuch.'
-        : 'Bringen Sie das Gerät einfach zu uns in die Kaiserstraße. Wir prüfen es in unserer Werkstatt und melden uns mit dem Kostenvoranschlag.'}</p>
-      <div class="check__price">${big
-        ? `<strong>${inPorz ? 79 : 99} €</strong><span>Vor-Ort-Pauschale ${inPorz ? 'innerhalb' : 'außerhalb'} von Köln-Porz (PLZ ${plz}), inkl. Anfahrt, Techniker, Prüfung und kleiner Reparaturen. Wird bei Auftrag angerechnet.</span>`
-        : `<strong>${device.kv} €</strong><span>Kostenvoranschlag im Geschäft, wird bei Reparatur vollständig angerechnet.</span>`}</div>
+        ? 'Unser Techniker kommt zu Ihnen nach Hause. Kleinere Reparaturen erledigt er oft gleich beim ersten Besuch.'
+        : 'Bringen Sie das Gerät einfach zu uns in die Kaiserstraße. Wir prüfen es in unserer Werkstatt.'}</p>
+      <div class="check__price">
+        <span class="check__label">${big ? `Vor-Ort-Pauschale ${inPorz ? 'in' : 'außerhalb von'} Köln-Porz` : 'Kostenvoranschlag im Geschäft'}</span>
+        <strong>${big ? (inPorz ? 79 : 99) : device.kv} €</strong>
+        <span>${big ? 'Inklusive Anfahrt und Prüfung. ' : ''}Wird bei Auftrag angerechnet.</span>
+      </div>
       <div class="check__actions"><a class="btn btn--red" href="/kontakt/?${q}">Jetzt Reparatur anfragen</a><a class="btn btn--ghost" href="${SITE.phoneHref}">${icon('phone')} Anrufen</a></div>`;
     $res.hidden = false;
   };

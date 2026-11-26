@@ -1,0 +1,41 @@
+# Scholz & Partner: Grundschutz für den Webserver (Apache bei netcup)
+
+# Keine Ordner-Inhaltslisten anzeigen
+Options -Indexes
+
+# Immer verschlüsselt (https). Prüft auch den Proxy-Header, damit keine Umleitungsschleife entsteht.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# Interne Dateien und Ordner nie ausliefern
+RedirectMatch 404 /\.(git|claude|env|ht)
+RedirectMatch 404 ^/_lokal-testen
+RedirectMatch 404 \.(md|py|ps1|bat|bak|log|sql|tmp|lock)$
+<FilesMatch "^(config|lib|mailer|bestaetigung)\.php$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>
+
+# Sicherheits-Header
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
+  # Nur eigene Skripte; Google Maps darf als Karte eingebettet werden (erst nach Klick)
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-src https://maps.google.com https://www.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+</IfModule>
+
+# Produktdaten nie zwischenspeichern, damit Änderungen aus dem Admin sofort sichtbar sind
+<Files "products.json">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-store"
+  </IfModule>
+</Files>

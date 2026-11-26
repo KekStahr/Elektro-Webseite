@@ -1,7 +1,7 @@
 /* ===== Admin: Geräte anlegen, bearbeiten, löschen ===== */
 const $ = id => document.getElementById(id);
 const api = async (action, body) => {
-  const res = await fetch(`/admin/api.php?action=${action}`, body ? { method: 'POST', headers: { 'X-CSRF': window.CSRF }, body } : {});
+  const res = await fetch(`/admin/api.php?action=${action}`, body ? { method: 'POST', headers: { 'X-CSRF': document.body.dataset.csrf }, body } : {});
   if (res.status === 401) { location.reload(); throw new Error('Bitte neu anmelden.'); }
   const data = await res.json().catch(() => ({ error: 'Serverfehler.' }));
   if (!res.ok || data.error) throw new Error(data.error || 'Fehler');

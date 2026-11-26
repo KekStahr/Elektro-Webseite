@@ -53,3 +53,9 @@ a.ccard:hover { border-color: var(--navy); box-shadow: var(--shadow); }
 .place__note .ico { width: 16px; height: 16px; color: var(--green); flex: none; }
 .consent span { flex: 1; }
 @media (max-width: 600px) { .place__opts { grid-template-columns: 1fr; } }
+
+/* Adresse für den Techniker-Termin */
+.addr { border: 0; padding: 0; margin: 0; min-width: 0; animation: place-in .3s ease; }
+.addr__row { display: grid; grid-template-columns: 140px 1fr; gap: 0 16px; }
+#vorort-preis { transition: color .2s; }
+@media (max-width: 600px) { .addr__row { grid-template-columns: 110px 1fr; } }

@@ -106,7 +106,11 @@ loadProducts().then(all => {
         e.preventDefault();
         const [a, b] = e.touches;
         setZoom(pinch.s * Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) / pinch.d);
-      } else if (scale > 1 && e.touches.length === 1) { e.preventDefault(); setZoom(scale, ...pos(e.touches[0])); }
+      } else if (scale > 1 && e.touches.length === 1) {
+        e.preventDefault();
+        const [x, y] = pos(e.touches[0]), r = main.getBoundingClientRect();
+        setZoom(scale, r.width - x, r.height - y);
+      }
     }, { passive: false });
     main.addEventListener('touchend', e => { if (e.touches.length < 2) pinch = null; });
     $pd.querySelector('.gallery__thumbs')?.addEventListener('click', () => setZoom(1)); // neues Bild = ungezoomt

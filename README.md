@@ -20,11 +20,13 @@ Gemeinsames liegt in `/assets/` (Design, Header/Footer, Firmendaten in `assets/j
 
 ## Admin
 
+> **Zugangsdaten stehen nur in `admin/config.php`.** Diese Datei ist per `.gitignore` vom Repository ausgeschlossen, Vorlage: `admin/config.example.php`. Passwörter nie in README, Chat oder Commits schreiben.
+
 Aufruf: `/admin/`. Anmeldung in zwei Schritten: ID + Passwort, dann 6-stelliger Code aus der E-Mail.
 
 Zwei Zugänge (in `admin/config.php`):
-- **Laden-Admin:** `ElektroLaden` / `ElektroladenScholz`, Code geht an onemillionbaby100@gmail.com. Kann Geräte anlegen, bearbeiten, online/offline schalten und löschen.
-- **Super-Admin:** `Reso` / `ResoSuperAdmin`, Code geht an ahmed.bilgic1998@gmail.com. Hat alle Rechte des Laden-Admins plus den Knopf „Beispielgeräte entfernen“ (löscht alle `demo-…` auf einmal). Oben rechts erscint das Abzeichen „Super-Admin“.
+- **Laden-Admin:** Benutzer und Passwort in `admin/config.php` (`ADMIN_USER`/`ADMIN_PASS`), Code geht an `TWOFA_EMAIL`. Kann Geräte anlegen, bearbeiten, online/offline schalten und löschen.
+- **Super-Admin:** `SUPER_USER`/`SUPER_PASS` in `admin/config.php`, Code geht an `SUPER_EMAIL`. Hat alle Rechte des Laden-Admins plus den Knopf „Beispielgeräte entfernen“ (löscht alle `demo-…` auf einmal). Oben rechts erscheint das Abzeichen „Super-Admin“.
 
 - Produkte landen in `data/products.json`, Bilder in `uploads/products/`.
 - Die 8 Produkte mit `demo-…` sind **Beispiele** – vor dem Livegang im Admin löschen/ersetzen (als Super-Admin mit einem Klick).
@@ -37,25 +39,21 @@ Login mit 2-Faktor-Code, CSRF-Token bei jeder Änderung, Sperre nach 5 Fehlversu
 
 Alles per FTP in das Web-Verzeichnis der Domain kopieren (inkl. `.htaccess`-Dateien), **außer** den Ordnern `_lokal-testen` und `.claude`. Voraussetzungen: PHP ≥ 7.4 mit `fileinfo` und `openssl`.
 
-## E-Mail-Versand (Login-Codes + Kontaktformular)
+## E-Mail-Versand (Login-Codes, Anfragen, Kunden-Bestätigung)
 
-Verschickt wird über das Gmail-Konto onemillionbaby100@gmail.com (SMTP, verschlüsselt). Einmalig einrichten:
-1. Google-Konto → Sicherheit → **2-Schritt-Bestätigung** einschalten.
-2. https://myaccount.google.com/apppasswords öffnen, App-Passwort mit Namen „Website“ erstellen.
-3. Das 16-stellige Passwort ohne Leerzeichen in `admin/config.php` bei `SMTP_PASS` eintragen.
+Alle Mails kommen von **info@scholz-hausgeraeteservice.de** und gehen über den Mailserver der Domain bei netcup (`mx2f0e.netcup.net`, Port 465, verschlüsselt).
+Einmalig einrichten: In `admin/config.php` bei `SMTP_PASS` das **Passwort des Postfachs info@** eintragen (dasselbe wie im netcup-Webmail).
 
-Ist `SMTP_PASS` leer, wird über den Webserver (`mail()`) verschickt. Lokal landen die Mails dann im Test-Postfach unter http://localhost:8025.
-Ist `SMTP_PASS` eingetragen, gehen die Mails **auch beim lokalen Testen echt raus** (an die Gmail-Adressen und an Kunden).
+Ist `SMTP_PASS` leer, verschickt der netcup-Webserver selbst (ebenfalls als info@). Lokal landen die Mails dann im Test-Postfach unter http://localhost:8025.
 
-Wer bekommt was:
 | Mail | Empfänger |
 |---|---|
 | Login-Code Laden-Admin | `TWOFA_EMAIL` (onemillionbaby100@gmail.com) |
 | Login-Code Super-Admin | `SUPER_EMAIL` (ahmed.bilgic1998@gmail.com) |
-| Neue Anfrage aus dem Kontaktformular | info@scholz-hausgeraeteservice.de (in `kontakt/send.php`, Variable `$TO`) |
-| Eingangsbestätigung mit Logo | der Kunde, wenn er seine E-Mail angibt |
+| Neue Anfrage aus dem Kontaktformular | info@ (Antworten gehen direkt an den Kunden) |
+| Eingangsbestätigung mit Logo | der Kunde (E-Mail ist im Formular Pflicht); antwortet er, landet es bei info@ |
 
-Kommt nichts an: zuerst Spam-Ordner prüfen. Meldet die Seite „E-Mail konnte nicht gesendet werden“, ist das App-Passwort falsch oder die 2-Schritt-Bestätigung aus.
+Kommt nichts an: zuerst Spam-Ordner prüfen. Meldet die Seite „E-Mail konnte nicht gesendet werden“, stimmt das Postfach-Passwort nicht.
 
 ## Vor dem Livegang noch zu tun
 
